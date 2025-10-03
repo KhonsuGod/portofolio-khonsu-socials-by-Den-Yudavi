@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Khonsu Socials — Portfolio</title>
+<style>
+  :root{
+    --bg:#0b0f14;--fg:#e9eef2;--muted:#a7b2bd;
+    --card:rgba(255,255,255,.05);--border:rgba(255,255,255,.10);
+    --cyan:#00e0d6;--accent:#89f3ee;--shadow:0 10px 30px rgba(0,0,0,.45)
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font:500 15px/1.6 "Inter","Segoe UI",system-ui,sans-serif;overflow-x:hidden}
+
+  /* NAV / BRAND */
+  header{position:sticky;top:0;z-index:50;background:rgba(11,15,20,.85);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border)}
+  .nav{max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:14px 22px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.2px}
+  .brand img{width:44px;height:44px;object-fit:cover;border-radius:12px;border:1px solid var(--border);
+    background:rgba(255,255,255,.04);filter:drop-shadow(0 2px 8px rgba(0,224,214,.35))}
+  .brand .fallback{display:none;color:var(--fg)}
+  nav a{color:var(--muted);margin-left:20px;text-decoration:none;transition:.3s}
+  nav a:hover{color:var(--accent);transform:translateY(-2px)}
+
+  /* SECTION */
+  section{padding:64px 22px}
+  .wrap{max-width:1200px;margin:auto}
+  h2{font-size:22px;margin-bottom:18px;color:var(--cyan);font-weight:800}
+
+  /* CARDS */
+  .grid{display:grid;gap:22px}
+  .cards{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:var(--shadow);
+    opacity:0;
+    transform: translateY(36px) scale(0.96);
+    transition: all .8s cubic-bezier(.17,.67,.83,.67);
+  }
+  .card.show{
+    opacity:1;
+    transform: translateY(0) scale(1);
+  }
+  .card:hover{
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 20px 35px rgba(0,0,0,.5);
+    transition: all .35s ease;
+  }
+  .thumb{width:100%;height:168px;border-radius:12px;object-fit:cover;margin-bottom:12px;cursor:pointer;transition:.3s}
+  .thumb:hover{filter:brightness(1.1) saturate(1.15)}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 8px}
+  .tag{font-size:.72rem;padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--border)}
+  .metrics{display:flex;flex-wrap:wrap;gap:8px;font-size:.82rem;color:var(--muted)}
+  .metrics .chip{padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid var(--border)}
+  .insight{margin-top:8px;color:#dfe7ee;font-size:.9rem;opacity:.95}
+
+  /* BUTTON */
+  .btn{display:inline-block;padding:8px 14px;border-radius:10px;background:var(--cyan);color:#001313;
+    font-weight:800;font-size:.85rem;text-decoration:none;border:0;cursor:pointer;transition:.28s ease}
+  .btn:hover{transform:scale(1.05) translateY(-2px);box-shadow:0 10px 24px rgba(0,224,214,.35)}
+  .btn-ghost{background:transparent;color:var(--fg);border:1px solid var(--border)}
+  .btn-ghost:hover{background:rgba(255,255,255,.08)}
+
+  /* MODAL / DETAIL */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;place-items:center;z-index:100}
+  .modal.show{display:grid;animation:fadeIn .22s ease}
+  .box{width:min(980px,94%);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+    border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:18px}
+  .box header{position:relative;background:transparent;backdrop-filter:none;border:0;padding:0;margin-bottom:10px}
+  .box h3{font-size:20px;color:var(--cyan)}
+  .close{cursor:pointer;font-size:22px;opacity:.9}
+  .detail-hero{width:100%;border-radius:12px;margin:10px 0}
+  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:10px 0}
+  .kpi .it{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:12px;padding:10px}
+  .kpi .it b{display:block;font-size:.74rem;color:var(--muted)}
+  .kpi .it span{font-size:1.04rem;font-weight:800}
+  .detail-actions{display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-top:10px}
+  .note{color:#dfe7ee;opacity:.95}
+
+  /* MUSIC BTN */
+  #musicBtn{position:fixed;left:18px;bottom:18px;z-index:120;background:var(--cyan);color:#001313;
+    border:0;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(0,224,214,.35);transition:.3s}
+  #musicBtn:hover{transform:scale(1.1)}
+
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav wrap">
+    <div class="brand">
+      <img src="logo-khonsu.jpg" alt="Khonsu Socials"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+      <span class="fallback">Khonsu Socials</span>
+    </div>
+    <nav>
+      <a href="#layanan">Layanan</a>
+      <a href="#shopee">Shopee</a>
+      <a href="#tiktok">TikTok</a>
+      <!-- TAMBAHAN MENU IG -->
+      <a href="#instagram">Instagram</a>
+      <a href="#projects">Projects</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== LAYANAN ===== -->
+<section id="layanan">
+  <div class="wrap">
+    <h2>Layanan & Paket</h2>
+    <div class="grid cards" id="svc"></div>
+  </div>
+</section>
+
+<!-- ===== SHOPEE ===== -->
+<section id="shopee">
+  <div class="wrap">
+    <h2>Hasil Shopee</h2>
+    <div class="grid cards" id="shopeeCards"></div>
+  </div>
+</section>
+
+<!-- ===== TIKTOK ===== -->
+<section id="tiktok">
+  <div class="wrap">
+    <h2>Hasil TikTok</h2>
+    <div class="grid cards" id="tiktokCards"></div>
+  </div>
+</section>
+
+<!-- ===== INSTAGRAM (TAMBAHAN) ===== -->
+<section id="instagram">
+  <div class="wrap" style="text-align:center">
+    <h2>Testimoni & Order Lain</h2>
+    <p style="margin-bottom:16px;color:#cdd6de">
+      Semua testimoni orderan lain (joki tugas, bug WhatsApp, growth Instagram, dll) 
+      bisa dilihat langsung di Instagram resmi Khonsu Socials.
+      Dan untuk Pricelist Layanan lain.
+    </p>
+    <a href="https://www.instagram.com/khonsu_socials/" target="_blank" rel="noopener" 
+       class="btn">Lihat Instagram</a>
+  </div>
+</section>
+
+<!-- ===== PROJECT WEB ===== -->
+<section id="projects">
+  <div class="wrap">
+    <h2>Project Web (Redirect)</h2>
+    <div class="grid cards" id="webCards"></div>
+  </div>
+</section>
+
+<!-- ===== AUDIO ===== -->
+<audio id="bgMusic" src="Novacaine.mp3" preload="none" loop></audio>
+<button id="musicBtn">▶ Play Music</button>
+
+<!-- ===== MODAL ===== -->
+<div class="modal" id="modal">
+  <div class="box">
+    <header class="wrap" style="display:flex;align-items:center;justify-content:space-between">
+      <h3 id="mTitle">Judul</h3>
+      <span id="mClose" class="close">&times;</span>
+    </header>
+    <img id="mImg" class="detail-hero" src="" alt="preview">
+    <div class="kpi" id="mKpi"></div>
+    <p class="note" id="mNote"></p>
+    <div class="detail-actions">
+      <a id="mLink" class="btn" target="_blank" rel="noopener">Buka Profil</a>
+      <button id="mHide" class="btn-ghost">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER CREDIT (TAMBAHAN) ===== -->
+<footer style="background:rgba(255,255,255,.05);border-top:1px solid var(--border);padding:28px 0;margin-top:40px">
+  <div class="wrap" style="text-align:center;font-size:.9rem;color:var(--muted);line-height:1.6">
+    thx Zazouim El Amun<br/>
+    © 2025 Khonsu El Amun<br/>
+    web by : <b>Den Yudavi</b>
+  </div>
+</footer>
+
+<script>
+/* ====== DATA ====== */
+/* Layanan */
+const services = [
+  {title:"Shopee Ads Management", desc:"Optimasi keyword, thumbnail, listing; CTR & konversi naik; ROAS stabil.", tags:["Search/Shop Ads","SEO Produk","A/B Thumbnail"]},
+  {title:"TikTok Ads & Growth", desc:"Creative natural + funnel; CPC turun, CTR naik, dorong penjualan.", tags:["UGC","Conversion","Retargeting","SOP Live"]},
+  {title:"Unlock TikTok Live", desc:"Penuhi syarat akun & konten; fitur live terbuka & siap jualan.", tags:["Profil Setup","Konten Syarat","Growth Drip"]},
+  {title:"Web Mini / Portfolio", desc:"Undangan digital, reservasi, mini-site elegan & cepat.", tags:["Mini Site","Fast","Link-in-bio"]},
+];
+
+/* Shopee clients */
+const shopee = [
+  {
+    id:"toko-ajib", title:"Toko Ajib — Parfum",
+    img:"toko-ajib-1.jpg", link:"https://shopee.co.id/tokoajiib",
+    tags:["Ads","SEO","Growth"],
+    metrics:{
+      followers:"34K+", sales:"1–2 rb pcs/bln", spend:"Rp 7,8 jt",
+      omzet:"Rp 34,2 jt", roas:"4,4x", ctr:"1,8%", cpc:"Rp 260"
+    },
+    note:"Badge 'Garansi Ori' + thumbnail elegan → CTR naik, konversi stabil."
+  },
+  {
+    id:"store-ajib", title:"Store Ajib — Parfum",
+    img:"store-ajib-1.jpg", link:"https://shopee.co.id/storeajiib_",
+    tags:["Ads","Growth"],
+    metrics:{
+      followers:"14K+", sales:"best-seller 8rb+", spend:"Rp 2 jt",
+      omzet:"Rp 28,7 jt", roas:"4,6x", ctr:"3,0%", cpc:"Rp 290"
+    },
+    note:"Search + Shop Ads berlapis → visibilitas & penjualan meningkat."
+  },
+  {
+    id:"fahri", title:"Fahri Lifestyle — Fashion",
+    img:"fahri-lifestyle-1.jpg", link:"#",
+    tags:["Organik","SEO"],
+    metrics:{
+      followers:"32K+", sales:"stabil harian", spend:" Rp 200 rb",
+      omzet:" Rp 3 jt ", roas:" 5x ", ctr:"+50% (organik)", cpc:"200 (ads)"
+    },
+    note:"Optimasi listing + konten → traffic organik bantu efisiensi iklan."
+  },
+  {
+    id:"clv-shp", title:"CLV Store — Stationery",
+    img:"clvstore-shopee-1.jpg", link:"#",
+    tags:["SEO","Ads"],
+    metrics:{
+      followers:"240+", sales:"70+ order/bln", spend:"Rp 1,8 jt",
+      omzet:"Rp 8,9 jt", roas:"4,0x", ctr:"2,3%", cpc:"Rp 210"
+    },
+    note:"Start dari produk populer → tingkatkan ranking & konversi."
+  },
+];
+
+/* TikTok clients (termasuk non-ecom lead-gen) */
+const tiktok = [
+  {
+    id:"omobags", title:"OMOBAGS — TikTok Live & Ads",
+    img:"omobags-1.jpg", link:"https://www.tiktok.com/@omobags.2",
+    tags:["Unlock Live","UGC","Conversion"],
+    metrics:{
+      followers:"7,3K", sales:"via Live/Shop", spend:"Rp 4,2 jt",
+      omzet:"Rp 19,5 jt", roas:"4,6x", ctr:"1,9%", cpc:"Rp 160"
+    },
+    note:"SOP live harian + creative natural → CPC turun, CTR naik; live viewers 300–1,5k."
+  },
+  {
+    id:"clv-tt", title:"CLV Store — TikTok Growth",
+    img:"clvstore-tiktok-1.jpg", link:"https://www.tiktok.com/@clvstore8",
+    tags:["Growth","Live"],
+    metrics:{
+      followers:"1,0K", sales:"mulai closing", spend:"Rp 1,6 jt",
+      omzet:"Rp 6,3 jt", roas:"3,9x", ctr:"1,6%", cpc:"Rp 140"
+    },
+    note:"Live konsisten & konten trustable; hasil mendekati OMOBAGS (skala lebih kecil)."
+  },
+  {
+    id:"storeajib-tt", title:"Store Ajib — TikTok Shop",
+    img:"store-ajib-tiktok-1.jpg", link:"https://www.tiktok.com/@storeajiib",
+    tags:["Unlock Live","Shop","UGC"],
+    metrics:{
+      followers:"11,3K", sales:"via Live/Shop", spend:"Rp 2,8 jt",
+      omzet:"Rp 10,9 jt", roas:"6,1x", ctr:"1,7%", cpc:"Rp 150"
+    },
+    note:"Konten natural + trigger live selling → dorong konversi parfum."
+  },
+  {
+    id:"salesgen", title:"Salesgen.Z — Dealer Daihatsu (Lead)",
+    img:"salesgen-z-1.jpg", link:"https://www.tiktok.com/@salesgen._z",
+    tags:["Lead Gen","Unlock Live"],
+    metrics:{
+      followers:"168 → 650", sales:"35 leads", spend:"",
+      omzet:"— (lead)", roas:"—", ctr:"1,4%", cpc:"Rp 34 rb (CPL)"
+    },
+    note:"Script video + CTA WA → 35 leads; fitur live terbuka untuk Q&A unit."
+  },
+  {
+    id:"risky", title:"Risky Daihatsu — Tangerang (Lead)",
+    img:"risky-daihatsu-1.jpg", link:"https://www.tiktok.com/@risky.daihatsutgr",
+    tags:["Lead Gen","Live"],
+    metrics:{
+      followers:"525 → 1,1K", sales:"42 leads", spend:"Rp 1,5 jt",
+      omzet:" Rp 20 jt ", roas:" 16 x ", ctr:"1,6%", cpc:"Rp 36 rb (CPL)"
+    },
+    note:"Konten testimoni + serah terima; live showcase unit & promo."
+  },
+  {
+    id:"mugana", title:"Mugana Channel — Hobi Peliharaan",
+    img:"mugana-channel-1.jpg", link:"https://www.tiktok.com/@mugana_channel",
+    tags:["Growth","UGC"],
+    metrics:{
+      followers:"4,8K → +1,2K", sales:"—", spend:"",
+      omzet:"—", roas:"—", ctr:"2,1%", cpc:"—"
+    },
+    note:"Short edukasi & hook dramatis; beberapa video tembus 20–50k views."
+  },
+  {
+    id:"luigi", title:"LuigiStore.id — Gaming (Awareness)",
+    img:"luigi-store-1.jpg", link:"https://www.tiktok.com/@luigistoreid",
+    tags:["Awareness","Content"],
+    metrics:{
+      followers:"249 → 600", sales:"—", spend:"",
+      omzet:"—", roas:"—", ctr:"1,2%", cpc:"—"
+    },
+    note:"Konten gameplay + tutorial; engagement rate ~6,2%."
+  },
+  {
+    id:"liberty-tt", title:"Liberty Lounge & KTV — Hospitality",
+    img:"liberty-1.jpg", link:"https://www.tiktok.com/@liberty.lounge.an",
+    tags:["Lead Gen","Reservasi","Live"],
+    metrics:{
+      followers:"14,6K → +2K", sales:"85 booking", spend:"Rp 1 jt",
+      omzet:" Rp 100 jt ", roas:" 99x ", ctr:"2,3%", cpc:"Rp 41 rb/booking"
+    },
+    note:"Konten ambience + promo slot; DM & WA booking naik konsisten."
+  },
+  {
+    id:"pisang", title:"Pisang Coklat Edun — F&B",
+    img:"pisang-edun-1.jpg", link:"https://www.tiktok.com/@pisangcoklatedun",
+    tags:["Ads","Growth","Live"],
+    metrics:{
+      followers:"460 → 1,2K", sales:"", spend:"",
+      omzet:"", roas:"", ctr:"1,8%", cpc:"Rp 130"
+    },
+    note:"Konten proses & review lokal; konversi via DM/WA + offline outlet."
+  },
+  {
+    id:"aldo", title:"Aldo Bhamar — Public Figure",
+    img:"aldo-bhamar-1.jpg", link:"https://www.tiktok.com/@aldobamarofficial",
+    tags:["Brand","Live","UGC"],
+    metrics:{
+      followers:"68,6K", sales:"120 leads/event", spend:"Rp 500 rb",
+      omzet:"—", roas:"—", ctr:"2,0%", cpc:"Rp 18 rb (CPL)"
+    },
+    note:"Konten personal branding + live; konversi ke event & produk charity."
+  },
+];
+
+/* Web projects */
+const projects = [
+  {title:"Liberty KTV — Reservasi", img:"project-reservasi-liberty.webp", link:"https://reservasi-liberty.vercel.app/", tags:["Next/Static","Responsive","Clean"],
+   note:"Form reservasi elegan, fokus konversi table booking."},
+  {title:"Wisnu & Dwinta — Undangan", img:"project-undangan-wisnu.webp", link:"https://undangan-wisnu-dwinta.vercel.app/", tags:["Undangan Digital","Fast","Shareable"],
+   note:"Undangan interaktif, ringan, cocok mobile."},
+];
+
+/* ====== RENDER ====== */
+const el=(s,p=document)=>p.querySelector(s);
+const svcWrap=el('#svc'); const shpWrap=el('#shopeeCards'); const ttWrap=el('#tiktokCards'); const webWrap=el('#webCards');
+
+function tagList(tags){return `<div class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`}
+function metricsChips(m){
+  const map = {followers:"Followers", sales:"Sales", spend:"Spend", omzet:"Omzet (Ads/Live)", roas:"ROAS", ctr:"CTR", cpc:"CPC/CPL"};
+  return `<div class="metrics">${
+    Object.keys(map).filter(k=>m[k]).map(k=>`<span class="chip"><b>${map[k]}:</b> ${m[k]}</span>`).join('')
+  }</div>`;
+}
+
+services.forEach((s,i)=>{
+  const d=document.createElement('div'); d.className='card reveal';
+  d.style.transitionDelay = `${i*90}ms`; /* STAGGER */
+  d.innerHTML=`<h3>${s.title}</h3><p style="margin:8px 0 10px">${s.desc}</p>${tagList(s.tags)}`;
+  svcWrap.appendChild(d);
+});
+
+function renderCards(list, wrap){
+  list.forEach((x,i)=>{
+    const d=document.createElement('div'); d.className='card reveal';
+    d.style.transitionDelay = `${i*90}ms`; /* STAGGER */
+    d.innerHTML=`
+      <img class="thumb open-detail" src="${x.img}" alt="${x.title}" data-id="${x.id}">
+      <h3>${x.title}</h3>
+      ${tagList(x.tags)}
+      ${x.metrics ? metricsChips(x.metrics) : ''}
+      ${x.note ? `<p class="insight">${x.note}</p>`:''}
+    `;
+    wrap.appendChild(d);
+  });
+}
+renderCards(shopee, shpWrap);
+renderCards(tiktok, ttWrap);
+
+projects.forEach((p,i)=>{
+  const d=document.createElement('div'); d.className='card reveal';
+  d.style.transitionDelay = `${i*90}ms`; /* STAGGER */
+  d.innerHTML=`
+    <img class="thumb" src="${p.img}" alt="${p.title}" onclick="window.open('${p.link}','_blank')">
+    <h3>${p.title}</h3>
+    ${tagList(p.tags)}
+    <p class="insight">${p.note}</p>
+    <div style="margin-top:8px"><a class="btn" href="${p.link}" target="_blank" rel="noopener">Kunjungi</a></div>
+  `;
+  webWrap.appendChild(d);
+});
+
+/* Animasi scroll (sedikit lebih agresif biar cepat muncul) */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting)e.target.classList.add('show')
+}),{threshold:.15, rootMargin:"0px 0px -10% 0px"});
+document.querySelectorAll('.card').forEach(c=>io.observe(c));
+
+/* Musik */
+const music=el('#bgMusic'); const musicBtn=el('#musicBtn');
+musicBtn.addEventListener('click',()=>{
+  if(music.paused){music.play();musicBtn.textContent='⏸ Stop Music';}
+  else{music.pause();musicBtn.textContent='▶ Play Music';}
+});
+
+/* Modal Detail */
+const DB = Object.fromEntries([...shopee, ...tiktok].map(x=>[x.id, x]));
+const modal = el('#modal');
+const mImg  = el('#mImg');
+const mTitle= el('#mTitle');
+const mKpi  = el('#mKpi');
+const mNote = el('#mNote');
+const mLink = el('#mLink');
+
+function openDetail(id){
+  const d=DB[id]; if(!d) return;
+  mTitle.textContent=d.title;
+  mImg.src=d.img;
+  mKpi.innerHTML = (()=> {
+    const m = d.metrics||{};
+    const items = [
+      {k:"followers", t:"Followers"}, {k:"sales", t:"Sales/Leads"},
+      {k:"spend", t:"Spend"}, {k:"omzet", t:"Omzet (Ads/Live)"},
+      {k:"roas", t:"ROAS"}, {k:"ctr", t:"CTR"}, {k:"cpc", t:"CPC/CPL"}
+    ].filter(i=>m[i.k]).map(i=>`<div class="it"><b>${i.t}</b><span>${m[i.k]}</span></div>`);
+    return items.join('');
+  })();
+  mNote.textContent = d.note || '';
+  mLink.href = d.link || "#";
+  modal.classList.add('show');
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('.open-detail'); if(t) openDetail(t.dataset.id);
+});
+el('#mClose').onclick=()=>modal.classList.remove('show');
+el('#mHide').onclick=()=>modal.classList.remove('show');
+modal.addEventListener('click',e=>{ if(e.target===modal) modal.classList.remove('show')});
+</script>
+</body>
+</html>
